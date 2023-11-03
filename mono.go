@@ -1,6 +1,8 @@
 package mono
 
-import "errors"
+import (
+	"errors"
+)
 
 // Base URL for Mono v2 API
 const BASE_URL = "https://api.withmono.com/v2/"
@@ -25,41 +27,32 @@ const (
 	AlternatePhoneMethod
 )
 
+var verificationMethods = map[string]BvnVerificationMethodType{
+	"email":           EmailMethod,
+	"phone":           PhoneMethod,
+	"phone_1":         PhoneMethod1,
+	"alternate_phone": AlternatePhoneMethod,
+}
+
 func (vm BvnVerificationMethodType) String() string {
-	switch vm {
-	case PhoneMethod:
-		return "phone"
-	case PhoneMethod1:
-		return "phone_1"
-	case AlternatePhoneMethod:
-		return "alternative_phone"
-	default:
-		return "email"
+	for key, method := range verificationMethods {
+		if method == vm {
+			return key
+		}
 	}
+
+	return "email"
 }
 
 // str must be one of the of the following: "email", "phone", "phone_1", "alternate_phone"
 //
 // Please check Step 2 on https://docs.mono.co/docs/bvn-lookup-integration-guide
 func (vm *BvnVerificationMethodType) FromString(str string) error {
-	verificationMethods := []BvnVerificationMethodType{
-		EmailMethod,
-		PhoneMethod,
-		PhoneMethod1,
-		AlternatePhoneMethod,
-	}
-
-	valid := false
-	for _, method := range verificationMethods {
-		if str == method.String() {
-			vm = &method
-			valid = true
-		}
-	}
-
-	if !valid {
+	method, found := verificationMethods[str]
+	if !found {
 		return errors.New("Invalid method type")
 	}
 
+	*vm = method
 	return nil
 }

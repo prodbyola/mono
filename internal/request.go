@@ -3,6 +3,7 @@ package internal
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 )
 
@@ -41,7 +42,7 @@ type RequestConfig struct {
 func MakeRequest[R any](config RequestConfig) (R, error) {
 	var resp R
 	client := http.Client{}
-	var buff *bytes.Buffer
+	var buff io.Reader
 
 	data := config.Data
 	method := config.Method
